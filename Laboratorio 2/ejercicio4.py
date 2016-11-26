@@ -1,3 +1,6 @@
+#Laboratorio 2
+#Alejandro Romero Amezcua
+#25 de noviembre de 2016
 import math
 lados=int(input("Numero de lados: "))
 longitud=float(input("Cual sera la longitud de los lados: "))
