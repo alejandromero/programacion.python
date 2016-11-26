@@ -1,7 +1,10 @@
 #Laboratorio 2
 #Alejandro Romero Amezcua
 #25 de noviembre de 2016
+
 import math
+import matplotlib.pyplot as plt
+print "\n"
 lados=int(input("Numero de lados: "))
 longitud=float(input("Cual sera la longitud de los lados: "))
 incrementoangulo=0
@@ -20,6 +23,9 @@ iangulo(lados)
 def imprimirc(x,y): #Imprimir los arrays que contienen las coordendas 
   for i in range(0,len(x)):
     print "Verice ",i+1,": ",x[i],",",y[i]
+def graficos(x,y):
+  plt.scatter(x,y)
+  plt.show()
 def coordenadas(a,l,b,x,y): #Calcular las coordenadas de cada punto
   lx=0
   ly=0
@@ -44,4 +50,10 @@ def coordenadas(a,l,b,x,y): #Calcular las coordenadas de cada punto
       x[i]=lx+x[i-1]
       y[i]=ly+y[i-1]
   imprimirc(x,y)
+  print "\n"
+  r=int(input("Desea ver un grafico[Si=1/No=0]: "))
+  if r==1:
+	graficos(x,y)
+  else:
+	pass
 coordenadas(lados,longitud,incrementoangulo,x,y)
