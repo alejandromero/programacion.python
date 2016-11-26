@@ -1,3 +1,6 @@
+#Laboratorio 2
+#Alejandro Romero Amezcua
+#25 de noviembre de 2016
 import math
 cateto1=float(input("Ingrese el primer cateto: "))
 cateto2=float(input("Ingrese el segundo cateto: "))
