@@ -1,4 +1,4 @@
-#Laboratorio 2
+#Laboratorio 
 #Alejandro Romero Amezcua
 #25 de noviembre de 2016
 import math
