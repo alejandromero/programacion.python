@@ -10,4 +10,4 @@ def interes(a):
 for i in range(0,anos):
     saldoinicial=interes(saldoinicial)
     saldoanos.append(interes(saldoinicial))
-print saldoano
+print saldoanos
