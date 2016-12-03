@@ -1,6 +1,6 @@
 #Ejercicio 5a
 #Alejandro Romero Amezcua
-#02 de diciembre de 2016
+#02 de diciembre de  2016
 import numpy as np
 import matplotlib.pyplot as plt
 from math import pi,sqrt
