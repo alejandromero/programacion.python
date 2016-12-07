@@ -1,3 +1,4 @@
+#-*-coding:utf-8 -*-
 #Ejercicio 5c
 #Alejandro Romero Amezcua
 #02 de diciembre de  2016

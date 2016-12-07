@@ -1,3 +1,4 @@
+#-*-coding:utf-8 -*-
 #Ejercicio 7
 #Alejandro Romero Amezcua
 #02 de diciembre de 2016

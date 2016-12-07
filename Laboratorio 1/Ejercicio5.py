@@ -1,3 +1,4 @@
+#-*-coding:utf-8 -*-
 #Laboratorio 1
 #Alejandro Romero Amezcua
 #Ejercicio5

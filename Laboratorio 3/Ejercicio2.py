@@ -1,3 +1,4 @@
+#-*-coding:utf-8 -*-
 #Laboratorio 3
 #Alejandro Romero Amezcua 
 #29 de noviembre de 2016
