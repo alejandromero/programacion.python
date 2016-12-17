@@ -1,31 +1,39 @@
 #-*-coding:utf-8 -*-
 #Ejercicio 3
 #Alejandro Romero Amezcua
-#12 de diciembre de 2016
-"""Programa que que regresa un nuevo archivo con nombres cocatenados"""
+#16 de diciembre de 2016
+"""Programa que que regresa un nuevo archivo con nombres cocatenados en base a nombres de archivos"""
 
-def newfile(cont,nombre):
-	newf=open(nombre,"w")
-	newf.write(cont[0])
+import os,glob
 
-def concatenar(l):
-	c=[]
-	for j in range(0,len(l)):
-		if j==0:
-			c.append(l[j])
-		else:
-			c[0]=c[0]+l[j]
-			print
-	return c
+def nombres(dir):
+	n=''
+	os.chdir(dir)
+	for file in glob.glob("*.txt"):
+		n=n+(file)
+	return n
 
-nombre=raw_input("\n¿Cual sera el nombre del archivo?\n")
-nombre=nombre+'.txt'
-n=int(raw_input("¿Cuantos nombres de archivos introducira?\n"))
-nombres=[]
-for i in range(0,n,1):
-	print "Ingrese el ",i+1," nombre: "
-	nombres.append(raw_input())
-contenido=concatenar(nombres)
-newfile(contenido,nombre)
+def nuevoa(dir,n,nom):
+	os.chdir(dir)
+	newf=open(nom,"w")
+	newf.write(n)
+
+pdir=os.getcwd()
+
+nombre=raw_input("¿Cual sera el nombre del nuevo archivo?")
+nombre=nombre+".txt"
+
+if (int(raw_input("¿Su archivo se guardara en este directorio[Si=1,No=0]? ")))==1:
+	dir2=pdir
+else:
+	dir2=raw_input("Ingrese el directorio en el cual se guardara el archivo:\n")
+
+if (int(raw_input("¿Los nombres de los archivos .txt estan en el directorio en el que se guardara el archivo[Si=1,No=0]? ")))==1:
+	dirn=dir2
+else:
+	dirn=raw_input("Ingrese el directorio del cual se extraeran los nombres de los archivos .txt:\n")
+
+nom=nombres(dirn)
+nuevoa(dir2,nom,nombre)
 
 raw_input("\nPresione la tecla intro para terminar la ejecucion")
