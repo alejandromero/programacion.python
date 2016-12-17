@@ -36,4 +36,4 @@ else:
 nom=nombres(dirn)
 nuevoa(dir2,nom,nombre)
 
-raw_input("\nPresione la tecla intro para terminar la ejecucion"
+raw_input("\nPresione la tecla intro para terminar la ejecucion")
