@@ -11,14 +11,14 @@ class Img:
     def __init__(self, name, directory, tag, idi):
         self.name = name
         self.directory = directory
-        self.tag = tag
+        self.tag = tag.strip().split(',')
         self.size = str(os.stat(directory+'/'+name).st_size)
         self.idi = str(idi)
 
 
 class ImgDic:
     def __init__(self):
-        self.dic = {}
+        self.dic = []
         self.file_path = os.path.dirname(os.path.realpath(__file__))
         self.idi = 0
         self.copy = True
@@ -28,42 +28,24 @@ class ImgDic:
         self.copy = selection
 
     def add_img(self, name_dir, tag):
-
         file1 = open(self.file_path+'/img_directory.txt', 'a')
         file2 = open(self.file_path+'/image_library/img_map.txt', 'a')
 
-        if tag in self.dic:
-            if self.copy:
-                if name_dir[0] in os.listdir(self.file_path+'/image_library'): # Si la imagen ya está copiada
-                    return False
-                else: #Si la imagen no está
-                    copy2(name_dir[1]+'/'+name_dir[0], self.file_path+'/image_library')
-                    self.dic[tag].append(Img(name_dir[0], name_dir[1], tag, self.idi))
-                    file2.write(name_dir[0]+'|'+self.file_path+'/image_library'+'|'+tag+'|'+str(self.idi)+'\n')
-                    self.idi += 1
-            else:
-                if name_dir[0] in self.txt_names():
-                    pass
-                else:
-                    self.dic[tag].append(Img(name_dir[0], name_dir[1], tag, self.idi))
-                    file1.write(name_dir[0]+'|'+name_dir[1]+'|'+tag+'|'+str(self.idi)+'\n')
-                    self.idi += 1
+        if self.copy:
+            if name_dir[0] in os.listdir(self.file_path+'/image_library'): # Si la imagen ya está copiada
+                return False
+            else: #Si la imagen no está
+                copy2(name_dir[1]+'/'+name_dir[0], self.file_path+'/image_library')
+                self.dic.append(Img(name_dir[0], name_dir[1], tag, self.idi))
+                file2.write(name_dir[0]+'|'+self.file_path+'/image_library'+'|'+tag+'|'+str(self.idi)+'\n')
+                self.idi += 1
         else:
-            if self.copy:
-                if name_dir[0] in os.listdir(self.file_path+'/image_library'): # Si la imagen ya está copiada
-                    return False
-                else: #Si la imagen no está
-                    copy2(name_dir[1] + '/' + name_dir[0], self.file_path + '/image_library')
-                    self.dic[tag] = [Img(name_dir[0], name_dir[1], tag, self.idi)]
-                    file2.write(name_dir[0]+'|'+self.file_path+'/image_library'+'|'+tag+'|'+str(self.idi)+'\n')
-                    self.idi += 1
+            if name_dir[0] in self.txt_names():
+                pass
             else:
-                if name_dir[0] in self.txt_names():
-                    pass
-                else:
-                    self.dic[tag] = [Img(name_dir[0], name_dir[1], tag, self.idi)]
-                    file1.write(name_dir[0]+'|'+name_dir[1]+'|'+tag+'|'+str(self.idi)+'\n')
-                    self.idi += 1
+                self.dic.append(Img(name_dir[0], name_dir[1], tag, self.idi))
+                file1.write(name_dir[0]+'|'+name_dir[1]+'|'+tag+'|'+str(self.idi)+'\n')
+                self.idi += 1
 
         file1.close()
         file2.close()
@@ -80,10 +62,6 @@ class ImgDic:
                 pass
         return names
 
-    def existing_tags(self): # Funcion obsoleta para la GUI
-        for i in self.dic:
-            print i + ' ' + str(len(self.dic[i]))
-
     def see_dic(self): # Funcion obsoleta para la GUI
         for i in self.dic:
             print '\n' + i + ':'
@@ -93,42 +71,44 @@ class ImgDic:
                 print 'Ubicacion: ' + j.directory
                 print 'Tamaño (bytes): ' + j.size
 
-    def search_image(self): # Funcion obsoleta para la GUI
-        tag = raw_input('En que etiqueta desea buscar: ')
-        if tag in self.dic:
-            for i in self.dic[tag]:
-                print i.name
-            name = raw_input('Nombre de la imagen: ')
-            for j in self.dic[tag]:
-                if j.name.lower() == name:
-                    myimage = Image.open(j.directory + '/' + j.name)
-                    myimage.show()
-                    myimage.close()
-                else:
-                    pass
-        else:
-            print 'Ningun elemento tiene esa etiqueta'
+    def search_images(self, tags):
+        images = []
+        tags = tags.strip().split(',')
+        for i in self.dic:
+            if any(j in tags for j in i.tag):
+                images.append(i)
+            else:
+                pass
+        return images
 
     def change_tag(self, image, new_tag):
+        self.dic.pop(self.dic.index(image))
+        image.tag = new_tag.strip().split(',')
+        self.dic.append(image)
 
-        self.dic[image.tag].pop(self.dic[image.tag].index(image))
-        image.tag = new_tag
-        if new_tag in self.dic:
-            self.dic[new_tag].append(image)
-        else:
-            self.dic[new_tag] = [image]
+    def graph_data(self):
+        data = {}
+        for img in self.dic:
+            for tag in img.tag:
+                if tag in data:
+                    for sec_tag in img.tag:
+                        if sec_tag in data[tag]:
+                            pass
+                        else:
+                            sec_tag.append(tag)
+                else:
+                    data[tag] = filter((lambda x: x if x != tag else None), (t for t in img.tag))
+        return data
 
     def rewrite(self):
-
         file1 = open(self.file_path + '/img_directory.txt', 'w')
         file2 = open(self.file_path + '/image_library/img_map.txt', 'w')
 
-        for i in self.dic:
-            for j in self.dic[i]:
-                if os.path.isfile(self.file_path+'/image_library/'+j.name):
-                    file2.write(j.name+'|'+j.directory+'|'+j.tag+'|'+j.idi+'\n')
-                else:
-                    file1.write(j.name+'|'+j.directory+'|'+j.tag+'|'+j.idi+'\n')
+        for j in self.dic:
+            if os.path.isfile(self.file_path+'/image_library/'+j.name):
+                file2.write(j.name+'|'+j.directory+'|'+','.join(j.tag)+'|'+j.idi+'\n')
+            else:
+                file1.write(j.name+'|'+j.directory+'|'+','.join(j.tag)+'|'+j.idi+'\n')
 
         file1.close()
         file2.close()
@@ -152,22 +132,20 @@ class ImgDic:
                 file1 = open(i, 'r')
                 for j in file1:
                     j = j.rstrip().split('|')
-                    if j[2] in self.dic:
-                        self.dic[j[2]].append(Img(j[0], j[1], j[2], j[3]))
-                        self.idi += 1
-                    else:
-                        self.dic[j[2]] = [Img(j[0], j[1], j[2], j[3])]
-                        self.idi += 1
+                    self.dic.append(Img(j[0], j[1], j[2], j[3]))
+                    self.idi += 1
                 file1.close()
             else:
                 open(i, 'w').close()
 
 
-class App: #gold2, olive drab, DarkOrange2, cyan4
+class App: #cyan4, gold2, olive drab, DarkOrange2
 
     def __init__(self, images):
         self.root = Tk()
         self.root.title('Organizador de fotos')
+        self.root.geometry('735x670')
+        self.root.resizable(0, 0)
         self.images = images
         self.main_menu()
 
@@ -180,8 +158,14 @@ class App: #gold2, olive drab, DarkOrange2, cyan4
         frame1.pack(fill=BOTH, expand=1)
         frame2 = Frame(self.root, bg='gold2')
         frame2.pack(fill=BOTH, expand=1)
+        frame3 = Frame(self.root, bg='olive drab')
+        frame3.pack(fill=BOTH, expand=1)
+        frame4 = Frame(self.root, bg='DarkOrange2')
+        frame4.pack(fill=BOTH, expand=1)
         Button(frame1, fg='white', activeforeground='cyan4', bg='cyan4', activebackground='white', borderwidth=0, text='Agregar imagenes', command=self.import_window).pack(expand=1)
         Button(frame2, fg='white', activeforeground='gold2', bg='gold2', activebackground='white', borderwidth=0, text='Cambiar etiqueta', command=self.change_tag_window).pack(expand=1)
+        Button(frame3, fg='white', activeforeground='olive drab', bg='olive drab', activebackground='white', borderwidth=0, text='Mi libreria', command=self.see_library).pack(expand=1)
+        Button(frame4, fg='white', activeforeground='DarkOrange2', bg='DarkOrange2', activebackground='white', borderwidth=0, text='Buscador', command=self.searcher).pack(expand=1)
         self.menu()
         self.root.mainloop()
 
@@ -191,13 +175,16 @@ class App: #gold2, olive drab, DarkOrange2, cyan4
                 try:
                     current[0] += n
                     img = Image.open(names[current[0]].directory+'/'+names[current[0]].name)
-                    img = img.resize((500, 400), Image.ANTIALIAS)
+                    img = img.resize((700, 600), Image.ANTIALIAS)
                     img = ImageTk.PhotoImage(img)
                     label['image'] = img
                     label.image = img
                     if isinstance(variable, Entry):
                         variable.delete(0, END)
-                        variable.insert(0, names[current[0]].tag)
+                        variable.insert(0, ','.join(names[current[0]].tag))
+                    elif isinstance(variable, Label):
+                        variable['text'] = ','.join(names[current[0]].tag)
+                        variable.text = ','.join(names[current[0]].tag)
                     else:
                         pass
                 except:
@@ -207,7 +194,7 @@ class App: #gold2, olive drab, DarkOrange2, cyan4
                     name, path = names[current[0] + n]
                     img = Image.open(path + '/' + name)
                     current[0] += n
-                    img = img.resize((500, 400), Image.ANTIALIAS)
+                    img = img.resize((700, 600), Image.ANTIALIAS)
                     img = ImageTk.PhotoImage(img)
                     label['image'] = img
                     label.image = img
@@ -256,9 +243,8 @@ class App: #gold2, olive drab, DarkOrange2, cyan4
     def change_tag_window(self):
 
         image_list = []
-        for tag in self.images.dic:
-            for im in self.images.dic[tag]:
-                image_list.append(im)
+        for im in self.images.dic:
+            image_list.append(im)
 
         if len(image_list)>0:
 
@@ -286,12 +272,9 @@ class App: #gold2, olive drab, DarkOrange2, cyan4
             Label(central_frame, text='Etiqueta: ').grid(row=0, column=0)
             new_tag = Entry(central_frame)
             new_tag.grid(row=0, column=1)
-            Button(left_frame, text='Anterior', borderwidth=0,
-                   command=lambda: self.open_image(img_label, image_list, current_element, -1, new_tag)).pack()
-            Button(right_frame, text='Siguiente', borderwidth=0,
-                   command=lambda: self.open_image(img_label, image_list, current_element, 1, new_tag)).pack()
-            Button(central_frame, text='Cambiar etiqueta', borderwidth=0,
-                   command=lambda: self.images.change_tag(image_list[current_element[0]], new_tag.get())).grid(row=2, column=0)
+            Button(left_frame, text='Anterior', borderwidth=0, command=lambda: self.open_image(img_label, image_list, current_element, -1, new_tag)).pack()
+            Button(right_frame, text='Siguiente', borderwidth=0, command=lambda: self.open_image(img_label, image_list, current_element, 1, new_tag)).pack()
+            Button(central_frame, text='Cambiar etiqueta', borderwidth=0, command=lambda: self.images.change_tag(image_list[current_element[0]], new_tag.get())).grid(row=2, column=0)
             Button(central_frame, text='Regresar', borderwidth=0, command=get_out).grid(row=2, column=1)
 
             self.open_image(img_label, image_list, current_element, 0, new_tag)
@@ -300,6 +283,84 @@ class App: #gold2, olive drab, DarkOrange2, cyan4
         else:
             Label(Toplevel(), text='Necesita agregar imagenes primero').pack()
 
+    def see_library(self):
+
+        if len(self.images.dic)!=0:
+
+            image_list = []
+            for im in self.images.dic:
+                image_list.append(im)
+
+            for child in self.root.winfo_children():
+                child.destroy()
+
+            current_element = [0]
+
+            img_frame = Frame(self.root)
+            img_frame.pack(side=TOP, fill=BOTH, expand=1)
+            left_frame = Frame(self.root)
+            left_frame.pack(side=LEFT, fill=BOTH, expand=1)
+            right_frame = Frame(self.root)
+            right_frame.pack(side=RIGHT, fill=BOTH, expand=1)
+            central_frame = Frame(self.root)
+            central_frame.pack(side=BOTTOM, fill=BOTH, expand=1)
+
+            img_label = Label(img_frame)
+            img_label.pack()
+
+            tag = Label(central_frame)
+            tag.grid(row=0, column=1)
+            Button(left_frame, text='Anterior', borderwidth=0, command=lambda: self.open_image(img_label, image_list, current_element, -1, tag)).pack()
+            Button(right_frame, text='Siguiente', borderwidth=0, command=lambda: self.open_image(img_label, image_list, current_element, 1, tag)).pack()
+            Button(central_frame, text='Regresar', borderwidth=0, command=self.main_menu).grid(row=2, column=1)
+
+            self.open_image(img_label, image_list, current_element, 0, tag)
+            self.menu()
+
+        else:
+            Label(Toplevel(), text='No tienes imagenes en tu bilbioteca').pack()
+
+    def searcher(self):
+
+        if len(self.images.dic) != 0:
+
+            for child in self.root.winfo_children():
+                child.destroy()
+
+            search_frame = Frame(self.root)
+            search_frame.pack(fill=BOTH, expand=1)
+            img_frame = Frame(self.root)
+            img_frame.pack(fill=BOTH, expand=1)
+
+            Label(search_frame, text='Etiquetas a buscar').grid(row=0, column=0)
+            search = Entry(search_frame)
+            search.grid(row=0, column=1)
+            Button(search_frame, text='Buscar', borderwidth=0, command=lambda: self.mosaic_view(self.images.search_images(search.get()), img_frame)).grid(row=1, column=1)
+            Button(search_frame, text='Regresar', borderwidth=0, command=self.main_menu).grid(row=1, column=0)
+
+        else:
+            Label(Toplevel(), text='No tienes imagenes en tu bilbioteca').pack()
+
+    def mosaic_view(self, results, frame):
+        for child in frame.winfo_children():
+            child.destroy()
+
+        for i in range(len(results)):
+            img = Image.open(results[i].directory+'/'+results[i].name)
+            img = img.resize((182, 155), Image.ANTIALIAS)
+            img = ImageTk.PhotoImage(img)
+            img_button = Button(frame, image=img, borderwidth=0, command=lambda p=results[i].directory+'/'+results[i].name: self.top_image(p))
+            img_button.image = img
+            img_button.grid(row=i//4, column=i%4)
+
+    def top_image(self, path):
+        img = Image.open(path)
+        img = img.resize((600, 500), Image.ANTIALIAS)
+        img = ImageTk.PhotoImage(img)
+        image_label = Label(Toplevel(), image=img)
+        image_label.image = img
+        image_label.pack()
+
     def menu(self):
         option_menu = Menu(self.root)
         self.root.config(menu=option_menu)
@@ -307,7 +368,6 @@ class App: #gold2, olive drab, DarkOrange2, cyan4
         option_menu.add_cascade(label='Config', menu=config_menu)
         config_menu.add_command(label='Copiar images', command=lambda: self.images.copy_images(True))
         config_menu.add_command(label='No copiar images', command=lambda: self.images.copy_images(False))
-
 
 images_d = ImgDic()
 app = App(images_d)
